@@ -25,6 +25,14 @@ jobs:
           unzip -q android-ndk-r16b-linux-x86_64.zip
           echo "ANDROID_NDK_HOME=$PWD/android-ndk-r16b" >> $GITHUB_ENV
 
+      - name: Install legacy libs needed by old NDK toolchain
+        run: |
+          echo "deb http://archive.ubuntu.com/ubuntu jammy main universe" | sudo tee /etc/apt/sources.list.d/jammy.list
+          sudo apt-get update
+          sudo apt-get install -y libtinfo5 libncurses5
+          sudo rm /etc/apt/sources.list.d/jammy.list
+          sudo apt-get update
+
       - name: Build native library (ndk-build)
         run: |
           cd source/jni
