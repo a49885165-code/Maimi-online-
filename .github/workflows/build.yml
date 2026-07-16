@@ -1,0 +1,61 @@
+name: Build Mordor APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Unpack source and java parts
+        run: |
+          unzip -o source.zip -d .
+          for f in java_part*.zip; do
+            unzip -o "$f" -d .
+          done
+          cp mordor_release.jks java/app/mordor_release.jks
+
+      - name: Install old NDK (r16b, needed for gnustl)
+        run: |
+          wget -q https://dl.google.com/android/repository/android-ndk-r16b-linux-x86_64.zip
+          unzip -q android-ndk-r16b-linux-x86_64.zip
+          echo "ANDROID_NDK_HOME=$PWD/android-ndk-r16b" >> $GITHUB_ENV
+
+      - name: Build native library (ndk-build)
+        run: |
+          cd source/jni
+          $ANDROID_NDK_HOME/ndk-build -j4
+
+      - name: Copy .so into jniLibs
+        run: |
+          mkdir -p java/app/src/main/jniLibs/armeabi-v7a
+          cp source/libs/armeabi-v7a/*.so java/app/src/main/jniLibs/armeabi-v7a/
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '11'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install SDK platform/build-tools
+        run: |
+          sdkmanager "platforms;android-30" "build-tools;30.0.3"
+
+      - name: Build APK
+        run: |
+          cd java
+          chmod +x gradlew
+          ./gradlew assembleGameRelease --stacktrace
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: mordor-apk
+          path: java/app/build/outputs/apk/game/release/*.apk
