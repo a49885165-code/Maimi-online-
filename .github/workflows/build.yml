@@ -32,6 +32,10 @@ jobs:
           content = content.replace("storePassword 'qwerty228'", "storePassword 'MordorRP2026!'")
           content = content.replace("keyAlias 'red_catqueen_mordor_apk'", "keyAlias 'mordor_key'")
           content = content.replace("keyPassword 'qwerty228'", "keyPassword 'MordorRP2026!'")
+          content = content.replace(
+              "implementation 'com.hzy:libp7zip:1.7.0'",
+              "implementation 'com.github.hzy3774:AndroidP7zip:v1.7.2'"
+          )
           with open(path, 'w') as f:
               f.write(content)
           EOF
