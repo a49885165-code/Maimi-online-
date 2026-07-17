@@ -19,6 +19,23 @@ jobs:
           done
           cp mordor_release.jks java/app/mordor_release.jks
 
+      - name: Patch stale signing config in build.gradle
+        run: |
+          python3 - << 'EOF'
+          path = "java/app/build.gradle"
+          with open(path) as f:
+              content = f.read()
+          content = content.replace(
+              "storeFile file('C:\\\\AndroidStudioProjects\\\\key_app.jks')",
+              "storeFile file('mordor_release.jks')"
+          )
+          content = content.replace("storePassword 'qwerty228'", "storePassword 'MordorRP2026!'")
+          content = content.replace("keyAlias 'red_catqueen_mordor_apk'", "keyAlias 'mordor_key'")
+          content = content.replace("keyPassword 'qwerty228'", "keyPassword 'MordorRP2026!'")
+          with open(path, 'w') as f:
+              f.write(content)
+          EOF
+
       - name: Install old NDK (r16b, needed for gnustl)
         run: |
           wget -q https://dl.google.com/android/repository/android-ndk-r16b-linux-x86_64.zip
