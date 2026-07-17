@@ -52,6 +52,38 @@ jobs:
               f.write(content)
           EOF
 
+      - name: Create placeholder google-services.json
+        run: |
+          cat > java/app/google-services.json << 'EOF'
+          {
+            "project_info": {
+              "project_number": "000000000000",
+              "project_id": "mordor-rp-placeholder",
+              "storage_bucket": "mordor-rp-placeholder.appspot.com"
+            },
+            "client": [
+              {
+                "client_info": {
+                  "mobilesdk_app_id": "1:000000000000:android:0000000000000000000000",
+                  "android_client_info": {
+                    "package_name": "com.mordor.game"
+                  }
+                },
+                "oauth_client": [],
+                "api_key": [
+                  { "current_key": "AIzaSyAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" }
+                ],
+                "services": {
+                  "appinvite_service": {
+                    "other_platform_oauth_client": []
+                  }
+                }
+              }
+            ],
+            "configuration_version": "1"
+          }
+          EOF
+
       - name: Install old NDK (r16b, needed for gnustl)
         run: |
           wget -q https://dl.google.com/android/repository/android-ndk-r16b-linux-x86_64.zip
@@ -82,6 +114,30 @@ jobs:
           distribution: temurin
           java-version: '17'
 
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install SDK platform/build-tools
+        run: |
+          sdkmanager "platforms;android-30" "build-tools;30.0.3"
+
+      - name: Set up JDK 11 (for old Gradle/AGP build)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '11'
+
+      - name: Build APK
+        run: |
+          cd java
+          chmod +x gradlew
+          ./gradlew assembleGameRelease --stacktrace
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: mordor-apk
+          path: java/app/build/outputs/apk/game/release/*.apk
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
