@@ -60,6 +60,18 @@ jobs:
         run: |
           sed -i 's#@drawable/ic_launcher_foreground_new#@mipmap/ic_launcher_adapt_foreground#' java/app/src/main/AndroidManifest.xml
 
+      - name: Add missing inventory dimens
+        run: |
+          cat > java/app/src/main/res/values/mordor_extra_dimens.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <resources>
+              <dimen name="inv_block_width">45dp</dimen>
+              <dimen name="inv_block_height">45dp</dimen>
+              <dimen name="inv_other_block_width">40dp</dimen>
+              <dimen name="inv_item_num_text_size">10sp</dimen>
+          </resources>
+          EOF
+
       - name: Create placeholder google-services.json
         run: |
           cat > java/app/google-services.json << 'EOF'
