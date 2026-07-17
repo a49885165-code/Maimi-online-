@@ -48,9 +48,17 @@ jobs:
               "implementation 'com.akexorcist:round-corner-progress-bar:2.1.1'",
               "implementation 'com.akexorcist:round-corner-progress-bar:2.2.0'"
           )
+          content = content.replace(
+              "apply plugin: 'com.google.firebase.crashlytics'",
+              "apply plugin: 'com.google.firebase.crashlytics'\n\nconfigurations.all {\n    resolutionStrategy {\n        force 'org.jetbrains.kotlin:kotlin-stdlib:1.8.0'\n        force 'org.jetbrains.kotlin:kotlin-stdlib-common:1.8.0'\n        force 'org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.0'\n        force 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.0'\n    }\n}"
+          )
           with open(path, 'w') as f:
               f.write(content)
           EOF
+
+      - name: Fix missing notification icon resource
+        run: |
+          sed -i 's#@drawable/ic_launcher_foreground_new#@mipmap/ic_launcher_adapt_foreground#' java/app/src/main/AndroidManifest.xml
 
       - name: Create placeholder google-services.json
         run: |
@@ -114,30 +122,6 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Install SDK platform/build-tools
-        run: |
-          sdkmanager "platforms;android-30" "build-tools;30.0.3"
-
-      - name: Set up JDK 11 (for old Gradle/AGP build)
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '11'
-
-      - name: Build APK
-        run: |
-          cd java
-          chmod +x gradlew
-          ./gradlew assembleGameRelease --stacktrace
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: mordor-apk
-          path: java/app/build/outputs/apk/game/release/*.apk
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
