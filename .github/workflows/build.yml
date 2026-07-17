@@ -38,11 +38,15 @@ jobs:
           )
           content = content.replace(
               "implementation 'com.mikhaellopez:circularprogressbar:3.0.3'",
-              "implementation 'com.github.lopspower:CircularProgressBar:3.1.0'"
+              "implementation 'com.mikhaellopez:circularprogressbar:3.1.0'"
           )
           content = content.replace(
               "implementation 'com.king.view:supertextview:1.0.1'",
               "implementation 'com.github.jenly1314:SuperTextView:1.0.1'"
+          )
+          content = content.replace(
+              "implementation 'com.akexorcist:round-corner-progress-bar:2.1.1'",
+              "implementation 'com.akexorcist:round-corner-progress-bar:2.2.0'"
           )
           with open(path, 'w') as f:
               f.write(content)
